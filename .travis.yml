@@ -5,13 +5,19 @@ complier:
   - gcc
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty
+
     packages:
       - cppcheck
       - make
       - cmake
+      - clang-format
 script:
   #- gcc -g -Wall -Wextra -Werror test2.c -o demo
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 test2.c ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --version ; fi
+  - clang-format --dry-run -Werror test2.c
 after_success:
   - bash <(curl -s https://codecov.io/bash)
