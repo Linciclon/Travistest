@@ -1,0 +1,7 @@
+#configurations of travis here
+#
+# Configuration
+#
+
+language: cpp
+dist: trusty
