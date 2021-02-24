@@ -2,5 +2,5 @@
 
 int main()
 {
-    printf("e que ta tudo");
+    printf("e que ta tud");
 }
