@@ -10,7 +10,7 @@ addons:
       - make
       - cmake
 script:
-  - gcc -g -Wall -Wextra -Werror test2.c -o demo
+  #- gcc -g -Wall -Wextra -Werror test2.c -o demo
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 test2.c ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --version ; fi
 after_success:
