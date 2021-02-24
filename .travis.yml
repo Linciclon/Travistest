@@ -1,7 +1,19 @@
-#configurations of travis here
-#
-# Configuration
-#
-
 language: cpp
-dist: trusty
+os:
+  - linux
+  - osx
+complier:
+  - gcc
+addons:
+  apt:
+    packages:
+      - cppcheck
+      - make
+      - cmake
+script:
+  - gcc -g -Wall -Wextra -Werror test2.c -o demo
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./demo ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style *.c *.cpp *.h ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --version ; fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
