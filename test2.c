@@ -2,7 +2,7 @@
 
 int main()
 {
-    int a;
-    a + 1;
+    int a = 0;
+    a = a + 1;
     printf("SERA QUE ESTOU A DAR?");
 }
