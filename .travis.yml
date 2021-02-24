@@ -1,0 +1,359 @@
+#configurations of travis here
+#
+# Configuration
+#
+
+language: cpp
+dist: trusty
+
+#
+# Tokens
+#
+env:
+  global:
+    secure: "5b5e3ab692f7219b05ecba0200ef5ab52c52f87b"
+
+#
+# Build Dependencies
+#
+before_script:
+
+  #
+  # Build Folder
+  #
+  - mkdir build
+  - cd build
+
+  #
+  # Update / Install CMake
+  #
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      mkdir -p external/cmake
+      pushd external/cmake
+      wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
+      chmod +x cmake-*-Linux-x86_64.sh
+      ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
+      export PATH="${PWD}/bin:$PATH"
+      popd
+    else
+      if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
+    fi
+#
+# Build Matrix
+#
+matrix:
+  include:
+
+  #
+  # Git Check
+  #
+  - os: linux
+    env:
+      - TEST="Git Check"
+    script:
+      - |
+        if [[ -n $(git diff --check HEAD^) ]]; then
+          echo "You must remove whitespace before submitting a pull request"
+          echo ""
+          git diff --check HEAD^
+          exit -1
+        fi
+  #
+  # Clang Tidy
+  #
+  - os: linux
+    env:
+      - TEST="Clang Tidy"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-trusty-4.0
+        packages:
+          - clang-4.0
+          - clang-tidy-4.0
+          - gcc-6
+          - g++-6
+    script:
+      - cmake -DENABLE_CLANG_TIDY=ON -DCMAKE_CXX_COMPILER="g++-6" ..
+      - make
+      - make tidy > output.txt
+      - |
+        if [[ -n $(grep "error: " output.txt) ]]; then
+            echo "You must pass the clang tidy checks before submitting a pull request"
+            echo ""
+            grep --color -E '^|warning: |error: ' output.txt
+            exit -1;
+        else
+            echo -e "\033[1;32m\xE2\x9C\x93 passed:\033[0m $1";
+        fi
+  #
+  # CppCheck
+  #
+
+  - os: linux
+    env:
+      - TEST="CppCheck"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-6
+          - g++-6
+    script:
+      - cmake -DENABLE_CPPCHECK=ON -DCMAKE_CXX_COMPILER="g++-6" ..
+      - make
+      - make check
+
+  #
+  # Coverity Scan
+  #
+
+
+  - os: linux
+    env:
+      - TEST="Coverity Scan"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-6
+          - g++-6
+      coverity_scan:
+        project:
+          name: "Linciclon/trash_tests"
+          description: "A simple example of how to setup a complete CI environment for C and C++"
+        notification_email: a82273@alunos.uminho.pt
+        build_command_prepend: "cmake -DCMAKE_CXX_COMPILER=g++-6 .."
+        build_command: "make"
+        branch_pattern: master
+    script:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  #
+  # G++ 5
+  #
+
+  - os: linux
+    env:
+      - TEST="G++ 5"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-5
+          - g++-5
+    script:
+      - cmake -DCMAKE_CXX_COMPILER="g++-5" ..
+      - make
+      - make test
+
+  #
+  # Clang 3.9
+  #
+
+  - os: linux
+    env:
+      - TEST="Clang 3.9"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-trusty-3.9
+        packages:
+          - clang-3.9
+          - gcc-6
+          - g++-6
+    script:
+      - cmake -DCMAKE_C_COMPILER=clang-3.9 -DCMAKE_CXX_COMPILER=clang++-3.9 ..
+      - make
+      - make test
+
+
+Build Config
+
+{
+  "language": "cpp",
+  "os": [
+    "linux"
+  ],
+  "dist": "trusty",
+  "env": {
+    "global": [
+      {
+        "secure": "5b5e3ab692f7219b05ecba0200ef5ab52c52f87b"
+      }
+    ]
+  },
+  "before_script": [
+    "mkdir build",
+    "cd build",
+    "if [[ \"${TRAVIS_OS_NAME}\" == \"linux\" ]]; then\n  mkdir -p external/cmake\n  pushd external/cmake\n  wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh\n  chmod +x cmake-*-Linux-x86_64.sh\n  ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license\n  export PATH=\"${PWD}/bin:$PATH\"\n  popd\nelse\n  if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi\nfi\n"
+  ],
+  "jobs": {
+    "include": [
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"Git Check\""
+          }
+        ],
+        "script": [
+          "if [[ -n $(git diff --check HEAD^) ]]; then\n  echo \"You must remove whitespace before submitting a pull request\"\n  echo \"\"\n  git diff --check HEAD^\n  exit -1\nfi\n"
+        ]
+      },
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"Clang Tidy\""
+          }
+        ],
+        "addons": {
+          "apt": {
+            "sources": [
+              {
+                "name": "ubuntu-toolchain-r-test"
+              },
+              {
+                "name": "llvm-toolchain-trusty-4.0"
+              }
+            ],
+            "packages": [
+              "clang-4.0",
+              "clang-tidy-4.0",
+              "gcc-6",
+              "g++-6"
+            ]
+          }
+        },
+        "script": [
+          "cmake -DENABLE_CLANG_TIDY=ON -DCMAKE_CXX_COMPILER=\"g++-6\" ..",
+          "make",
+          "make tidy > output.txt",
+          "if [[ -n $(grep \"error: \" output.txt) ]]; then\n    echo \"You must pass the clang tidy checks before submitting a pull request\"\n    echo \"\"\n    grep --color -E '^|warning: |error: ' output.txt\n    exit -1;\nelse\n    echo -e \"\\033[1;32m\\xE2\\x9C\\x93 passed:\\033[0m $1\";\nfi\n"
+        ]
+      },
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"CppCheck\""
+          }
+        ],
+        "addons": {
+          "apt": {
+            "sources": [
+              {
+                "name": "ubuntu-toolchain-r-test"
+              }
+            ],
+            "packages": [
+              "gcc-6",
+              "g++-6"
+            ]
+          }
+        },
+        "script": [
+          "cmake -DENABLE_CPPCHECK=ON -DCMAKE_CXX_COMPILER=\"g++-6\" ..",
+          "make",
+          "make check"
+        ]
+      },
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"Coverity Scan\""
+          }
+        ],
+        "addons": {
+          "apt": {
+            "sources": [
+              {
+                "name": "ubuntu-toolchain-r-test"
+              }
+            ],
+            "packages": [
+              "gcc-6",
+              "g++-6"
+            ]
+          },
+          "coverity_scan": {
+            "project": {
+              "name": "Linciclon/trash_tests",
+              "description": "A simple example of how to setup a complete CI environment for C and C++"
+            },
+            "notification_email": "a82273@alunos.uminho.pt,
+            "build_command_prepend": "cmake -DCMAKE_CXX_COMPILER=g++-6 ..",
+            "build_command": "make",
+            "branch_pattern": "master"
+          }
+        },
+        "script": [
+          "echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-"
+        ]
+      },
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"G++ 5\""
+          }
+        ],
+        "addons": {
+          "apt": {
+            "sources": [
+              {
+                "name": "ubuntu-toolchain-r-test"
+              }
+            ],
+            "packages": [
+              "gcc-5",
+              "g++-5"
+            ]
+          }
+        },
+        "script": [
+          "cmake -DCMAKE_CXX_COMPILER=\"g++-5\" ..",
+          "make",
+          "make test"
+        ]
+      },
+      {
+        "os": "linux",
+        "env": [
+          {
+            "TEST": "\"Clang 3.9\""
+          }
+        ],
+        "addons": {
+          "apt": {
+            "sources": [
+              {
+                "name": "ubuntu-toolchain-r-test"
+              },
+              {
+                "name": "llvm-toolchain-trusty-3.9"
+              }
+            ],
+            "packages": [
+              "clang-3.9",
+              "gcc-6",
+              "g++-6"
+            ]
+          }
+        },
+        "script": [
+          "cmake -DCMAKE_C_COMPILER=clang-3.9 -DCMAKE_CXX_COMPILER=clang++-3.9 ..",
+          "make",
+          "make test"
+        ]
+      }
+    ]
+  }
+}
