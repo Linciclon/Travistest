@@ -26,11 +26,11 @@ script:
   - if [ ! -s clang_format.patch ]; then exit 0 fi;
   - if [ ! -s clang_format.patch ]; then exit 1 fi;
 
-  - "if [ ! -s clang_format.patch ]; then
-    exit 0;
-    else
-    exit 1;
-    fi"
+  - 'if [ ! -s clang_format.patch ]; then
+        exit 0;
+      else
+        exit 1;
+    fi'
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
