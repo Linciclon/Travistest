@@ -11,7 +11,6 @@ python:
   - "nightly"  # nightly build
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
   - chmod +x ./run-clang-format.py
   - ./run-clang-format.py -r test2.c
 
