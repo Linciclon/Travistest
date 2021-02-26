@@ -5,4 +5,3 @@ int main() {
   a = a + 1;
   printf("SERA QUE ESTOU A DAR?");
 }
-
