@@ -9,17 +9,30 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty
+      - llvm-toolchain-precise
 
     packages:
       - cppcheck
       - make
       - cmake
-      - clang-format-10
+      - clang-format
 script:
   #- gcc -g -Wall -Wextra -Werror test2.c -o demo
   - then cppcheck --error-exitcode=1 test2.c ; fi
   - then cppcheck --version ; fi
-  - clang-format-10 --dry-run -Werror test2.c
+  - clang-format -i test2.c
+  
+  -git diff > clang_format.patch
+  
+  -if [ ! -s clang_format.patch ]
+    then
+        exit 0
+      else 
+      exit 1
+    fi
+
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+
