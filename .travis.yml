@@ -17,7 +17,7 @@ addons:
       - cmake
       - clang-format
 script:
-  #- gcc -g -Wall -Wextra -Werror test2.c -o demo
+  - gcc -g -Wall -Wextra -Werror test2.c -o demo
   - cppcheck --error-exitcode=1 test2.c
   - cppcheck --version
   - clang-format -i test2.c
