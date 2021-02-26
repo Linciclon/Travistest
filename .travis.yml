@@ -1,26 +1,9 @@
-language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"      # current default Python on Travis CI
-  - "3.7"
-  - "3.8"
-  - "3.9"
-  - "3.9-dev"  # 3.9 development branch
-  - "nightly"  # nightly build
-# command to install dependencies
-install:
-  - chmod +x ./run-clang-format.py
-  - ./run-clang-format.py -r test2.c
-
-
-
 language: cpp
 os:
   - linux
 complier:
   - gcc
+  - clang
 addons:
   apt:
     sources:
@@ -31,11 +14,12 @@ addons:
       - cppcheck
       - make
       - cmake
-      - clang-format
+      - clang-format-10
 script:
   #- gcc -g -Wall -Wextra -Werror test2.c -o demo
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 test2.c ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --version ; fi
+  - then cppcheck --error-exitcode=1 test2.c ; fi
+  - then cppcheck --version ; fi
+  - clang-format-10 --dry-run -Werror test2.c
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
