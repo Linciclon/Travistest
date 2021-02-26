@@ -18,6 +18,6 @@ script:
   #- gcc -g -Wall -Wextra -Werror test2.c -o demo
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 test2.c ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --version ; fi
-  - ../run-clang-format.py -r ../test2.c
+  - ./run-clang-format.py -r test2.c
 after_success:
   - bash <(curl -s https://codecov.io/bash)
