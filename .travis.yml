@@ -14,6 +14,7 @@ addons:
       - make
       - cmake
       - clang-format
+      - python
 script:
   #- gcc -g -Wall -Wextra -Werror test2.c -o demo
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 test2.c ; fi
