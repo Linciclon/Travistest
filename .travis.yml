@@ -23,8 +23,6 @@ script:
   - clang-format -i test2.c
   - git diff > clang_format.patch
   - cat clang_format.patch
-  - if [ ! -s clang_format.patch ]; then exit 0 fi;
-  - if [ ! -s clang_format.patch ]; then exit 1 fi;
 
   - 'if [ ! -s clang_format.patch ]; then
         exit 0;
